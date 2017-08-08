@@ -8,45 +8,55 @@ class BPPianoGenius:
         #Intialize Array of pressed keys with zeros
         self.pressedKeys = []
         for i in range(0, keyAmount):
-            pressedKeys.append(0)
+            self.pressedKeys.append(0)
 
         #This Array contains all keys mapped to one octave
         self.moduloKeys = []
         for i in range(0, 12):
-            pressedKeys.append(0)
+            self.moduloKeys.append(0)
 
         #Chordmap: maps tone distances from base key to specific chord
-        self.chordmap = [
-            [0, [0, 4, 7]], #0: Major
-            [1, [0, 3, 7]]  #1: Minor
-        ]
+        self.chordmap = {
+            "maj": [0, 4, 7], #Major
+            "min": [0, 3, 7]  #Minor
+        }
 
         return
 
-    def refreshModuloKeys():
+    def refreshModuloKeys(self):
         for i in range(0, 12):
-            pressedKeys[i] = 0
+            self.moduloKeys[i] = 0
 
-        for i in range(0, keyAmount):
-            moduloKeys[i % 12] += pressedKeys[i]
+        for i in range(0, self.keyAmount):
+            self.moduloKeys[i % 12] += self.pressedKeys[i]
         return
 
 
 
-    def pressKey(index, velocity):
-        pressedKeys[index] = velocity;
+    def pressKey(self, index, velocity):
+        self.pressedKeys[index] = velocity  
+        self.refreshModuloKeys()
+        return
         
-        return
-        
 
 
-    def releaseKey(index):
-        pressedKeys[index] = 0;
-
+    def releaseKey(self, index):
+        self.pressedKeys[index] = 0
+        self.refreshModuloKeys()
         return
 
 
-    def detectChord(baseKey):
-        # for i in range(0, len(chordmap)):
+    def isChordPlayed(self, baseKey, chord):
+        for chordOffs in self.chordmap[chord]:
+            if self.moduloKeys[(baseKey + chordOffs) % 12] == 0:
+                    return False
+        return True
 
-        return
+    def getChord(self, baseKey):
+        resultChord = "" #Will stay "" if no chord is found
+
+        for chord in self.chordmap:
+            if self.isChordPlayed(baseKey, chord):
+                resultChord = chord
+
+        return resultChord
