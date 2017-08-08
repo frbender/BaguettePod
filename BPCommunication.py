@@ -6,7 +6,7 @@ a class capable of communicating with an arduino aka pushing
 bytes to the arduino and ensuring correct formatting
 """
 class BPCommunication:
-    def __init__(self, address = "/dev/tty.usbserial", baudrate = 19200):
+    def __init__(self, address = "/dev/tty.usbserial", baudrate = 2000000):
         self.connection = serial.Serial(address, baudrate)
 
     """
@@ -14,10 +14,8 @@ class BPCommunication:
     (array in the form of [r, g, b] with r,g,b in [0, 255])
     """
     def transferBytes(self, data : [int]):
-        self.connection.write(b'\xff\xff\xff\xff')
-
         # weave zeros into bytelist
-        dataToSend = []
+        dataToSend = [255,255,255,255]
         i = 0
         for b in data:
             if i % 3 == 0:
@@ -26,7 +24,7 @@ class BPCommunication:
             i += 1
 
         # convert int array to bytes
-        dataAsBytes = array('B', data).tobytes()
+        dataAsBytes = array('B', dataToSend).tobytes()
         self.connection.write(dataAsBytes)
 
     def close(self):
